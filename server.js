@@ -79,7 +79,12 @@ const configuration = {
                         
                     };
                     
-                    if (request_datas["method"] === "order") {
+                    if (request_datas["endpoint"] === "order") {
+                        
+                        
+                        
+                    };
+                    if (request_datas["endpoint"] === "game") {
                         
                         
                         
