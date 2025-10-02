@@ -101,6 +101,8 @@ class payment() {
     
     get_paid(items) {
         
+        let api_request_result;
+          
         if (configuration["payment_processor"] === "stripe") {
 
             let order_items = [];
@@ -115,7 +117,6 @@ class payment() {
                 
             };
             
-            let api_request_result;
             if (order_items.length > 0) {
                   
                   api_request_result = this.api_client.checkout.sessions.create({mode: "payment", success_url: configuration["payment_process"]["success_url"], cancel_url: configuration["payment_process"]["cancel_url"], payment_method_types: configuration["payment_process"]["accepted_payment_ways"], line_items: order_items);
