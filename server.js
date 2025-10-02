@@ -60,7 +60,7 @@ express_http_requests_app.use(function(req, res) {
     if (!configuration["pages"][(request_url.pathname)]) {
         
         res.writeHead(configuration["pages"]["page_doesnt_exist"]["headers"]);
-        res.writeHead(configuration["pages"]["page_doesnt_exist"]["body"]);
+        res.write(configuration["pages"]["page_doesnt_exist"]["body"]);
         res.end(configuration["pages"]["page_doesnt_exist"]["end"]);
         
     };
