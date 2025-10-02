@@ -33,6 +33,7 @@ const configuration = {
         }
         
     },
+    "payment_processor": "none",
     "ws": {
         
         
@@ -82,3 +83,26 @@ express_http_requests_app.use(function(req, res) {
 });
 
 const HTTPSS = HTTPS.createServer(configuration["https"], express_https_requests_app); /* HTTPSS = HTTPS Server */
+
+/* Payment functions */
+
+class payment() {
+    
+    constructor() {
+        
+        if (configuration["payment_processor"] === "stripe") {
+            
+            let stripe_npm_package = require("stripe");
+            this.api_client = stripe_npm_package(configuration["payment_processor_account"]["token"]);
+            
+        };
+        
+    };
+    
+    get_paid(quantity, currency) {
+        
+        
+        
+    };
+    
+};
