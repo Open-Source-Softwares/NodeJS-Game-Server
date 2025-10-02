@@ -208,3 +208,15 @@ class payment() {
     };
     
 };
+
+const secure_websocket_server = new WS.Server({server: HTTPSS, port: 443});
+
+HTTPSS.on("upgrade", function(request, socket, headers) {
+    
+    secure_websocket_server.handleUpgrade(request, socket, headers, function(callback) {
+        
+        secure_websocket_server.emit("connection", callback, request);
+        
+    });
+    
+});
