@@ -33,6 +33,11 @@ const configuration = {
         }
         
     },
+    "payment_procession": {
+        
+        "token": ""
+        
+    },
     "payment_processor": "none",
     "ws": {
         
