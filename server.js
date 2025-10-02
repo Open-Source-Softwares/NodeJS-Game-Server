@@ -93,15 +93,47 @@ class payment() {
         if (configuration["payment_processor"] === "stripe") {
             
             let stripe_npm_package = require("stripe");
-            this.api_client = stripe_npm_package(configuration["payment_processor_account"]["token"]);
+            this.api_client = stripe_npm_package(configuration["payment_procession"]["token"]);
             
         };
         
     };
     
-    get_paid(quantity, currency) {
+    get_paid(items) {
         
-        
+        if (configuration["payment_processor"] === "stripe") {
+
+            let order_items = [];
+            
+            for (let item in items) {
+
+                if (items[(item)]["name"] && items[(item)]["price"] && items[(item)]["currency"] && items[(item)]["quantity"]) {
+                    
+                    order_items.push({price_data: {currency: items[(item)]["currency"], product_data: {name: items[(item)]["name"]}, unit_amount: items[(item)]["price"], quantity: items[(item)]["quantity"]}});
+                    
+                };
+                
+            };
+            
+            let api_request_result;
+            if (order_items.length > 0) {
+                  
+                  api_request_result = this.api_client.checkout.sessions.create({mode: "payment", success_url: configuration["payment_process"]["success_url"], cancel_url: configuration["payment_process"]["cancel_url"], payment_method_types: configuration["payment_process"]["accepted_payment_ways"], line_items: order_items);
+
+            };
+            
+            if (api_request_result["url"]) {
+                
+                return {success: true, url: api_request_result["url"]};
+                
+            };
+            if (!api_request_result["url"]) {
+
+                return {success: false};
+                
+            };
+            
+        };
         
     };
     
