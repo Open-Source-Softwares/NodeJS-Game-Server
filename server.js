@@ -136,7 +136,7 @@ class payment() {
             
             for (let item in items) {
 
-                if (items[(item)]["name"] && items[(item)]["price"] && items[(item)]["currency"] && items[(item)]["quantity"]) {
+                if (items[(item)]["name"] && items[(item)]["price"] && items[(item)]["currency"] && items[(item)]["quantity"]) { /* returns true true true true if the item has a name, price, price currency and order quantity */
                     
                     order_items.push({price_data: {currency: items[(item)]["currency"], product_data: {name: items[(item)]["name"]}, unit_amount: items[(item)]["price"], quantity: items[(item)]["quantity"]}});
                     
