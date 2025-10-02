@@ -26,9 +26,31 @@ const configuration = {
             
             "access_methods": ["GET"],
             "public": true,
-            "headers": {"content-type": "application/html"},
-            "body": "",
-            "end": ""
+            "headers": {"content-type": "application/html", "content-encoding": "utf8"},
+            "body": `<!DOCTYPE html>*
+<html>
+    <head>
+
+        <meta charset="utf8">
+        <script>
+
+
+            
+        </script>
+        <style>
+
+
+            
+        </style>
+        
+    </head>
+    <body>
+
+        
+        
+    </body>
+</html>`,
+            "end": null
             
         }
         
