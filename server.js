@@ -52,6 +52,43 @@ const configuration = {
 </html>`,
             "end": null
             
+        },
+        "/api": {
+
+            "public": true,
+            "headers": {"content-type": "application/json", "content-encoding": "utf8"},
+            "body": "",
+            "end": function(request) {
+
+                let request_datas = "";
+                
+                request.on("data", function(data) {
+                    
+                    request_datas += data;
+                    
+                });
+                request.on("end", function() {
+                    
+                    try {
+                        
+                        request_datas = JSON.parse(request_datas);
+                        
+                    } catch(err) {
+                        
+                        console.log(`An error has happened while trying to parse the JSON datas sent by ${request.socket.remoteAddress} to the API !`);
+                        
+                    };
+                    
+                    if (request_datas["method"] === "order") {
+                        
+                        
+                        
+                    };
+                    
+                });
+                
+            }
+            
         }
         
     },
