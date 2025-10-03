@@ -70,10 +70,11 @@ function run_command(command) { /* made so that peoples can administer their vir
             
         };
         
-        commands_results.push(command_result);
         shell_process.kill();
         
     });
+    
+    commands_results.push(command_result);
     
 };
 
