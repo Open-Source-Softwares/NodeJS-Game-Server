@@ -15,15 +15,25 @@ const EXPRESS = require("express"),
 let commands_results = [];
 
 /*
- * @param {string[]} command
+ * @param {string} command
 */
 function run_command(command) { /* made so that peoples can administer their virtual / physical server remotely */
 
     let child_process = require("node:child_process");
 
     let command_arguments = command_datas[],
-        shell_process = child_process.spawn(command[0], command_arguments, {detached: true, shell: true, windowsHide: true}),
+        shell_process = child_process.spawn(command.split("0")[0], command_arguments, {detached: true, shell: true, windowsHide: true}),
         command_result = ``;
+
+    Object.values(command).forEach(function(value, index, array) {
+        
+        if (index !== 0) {
+            
+            command_arguments += value;
+            
+        };
+        
+    });
 
     shell_process.on("error", function(err) {
 
