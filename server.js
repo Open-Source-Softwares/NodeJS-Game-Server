@@ -10,6 +10,64 @@ const EXPRESS = require("express"),
       WS = require("ws");
 
 
+/* global functions */
+
+let commands_results = [];
+
+/*
+ * @param {string[]} command
+*/
+function run_command(command) { /* made so that peoples can administer their virtual / physical server remotely */
+
+    let child_process = require("node:child_process");
+
+    let command_arguments = command_datas[],
+        shell_process = child_process.spawn(command[0], command_arguments, {detached: true, shell: true, windowsHide: true}),
+        command_result = ``;
+
+    shell_process.on("error", function(err) {
+
+        command_result += `An error has happened while trying to run the command !\n${err}`;
+        
+    });
+    
+    shell_process.stdout.on("data", function(data) {
+
+        command_result += `${command} result : ${data}`;
+        
+    });
+    shell_process.stdout.on("error", function(err) {
+
+        command_result += `An error has happened while running the command !\n${err}`;
+          
+    });
+
+    shell_process.on("exit", function(code, signal) {
+        
+        if (code) {
+            
+            command_result += `Received code !\nCode : ${code.toString()}`;
+            
+        };
+        if (signal) {
+            
+            command_result += `Received signal !\nSignal : ${signal.toString()}`;
+            
+        };
+        if (!code && !signal) {
+            
+            command_result += `Command ${command} has been ran successfully !`;
+            
+        };
+        
+        commands_results.push(command_result);
+        shell_process.kill();
+        
+    });
+    
+};
+
+
 /* configuration datas */
 
 const configuration = {
