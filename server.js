@@ -33,15 +33,21 @@ function run_command(command) { /* made so that peoples can administer their vir
     
     shell_process.stdout.on("data", function(data) {
 
-        command_result += `${command} result : ${data}`;
+        command_result += `Command ${command} has been ran successfully !\nResult : ${data}`;
         
     });
     shell_process.stdout.on("error", function(err) {
 
-        command_result += `An error has happened while running the command !\n${err}`;
+        command_result += `An error has happened while running the command !\n${err.message}`;
           
     });
 
+    shell_process.on("message", function(message, handle) {
+        
+        command_result += `Received a message from the command ${command} !\n${message.toString()}`;
+        
+    });
+    
     shell_process.on("exit", function(code, signal) {
         
         if (code) {
@@ -52,11 +58,6 @@ function run_command(command) { /* made so that peoples can administer their vir
         if (signal) {
             
             command_result += `Received signal !\nSignal : ${signal.toString()}`;
-            
-        };
-        if (!code && !signal) {
-            
-            command_result += `Command ${command} has been ran successfully !`;
             
         };
         
