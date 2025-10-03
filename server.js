@@ -13,7 +13,6 @@ const EXPRESS = require("express"),
 /* global functions */
 
 let commands_results = [];
-
 /*
  * @param {string} command
 */
