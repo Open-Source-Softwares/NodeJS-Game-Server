@@ -282,9 +282,9 @@ class payment {
             
             for (let argument in arguments) {
                 
-                if (!this.body[(argument)]) {
+                if (!this.body[`${argument}`]) { /* if the argument isn't already in the body of the request */
                     
-                    this.body[(argument)] = arguments[(argument)];
+                    this.body[`${argument}`] = arguments[`${argument}`];
                     
                 };
                 
@@ -294,6 +294,16 @@ class payment {
         if (configuration["payment_processor"] === "stripe") {
             
             this.body[mode] = "payment";
+            
+            for (let argument in arguments) {
+                
+                if (!this.body[`${argument}`]) {
+                    
+                    this.body[`${argument}`] = arguments[`${argument}`];
+                    
+                };
+                
+            };
             
         };
         
