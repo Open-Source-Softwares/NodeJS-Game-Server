@@ -172,6 +172,44 @@ const configuration = {
         
     },
     "payment_processor": "none",
+    "payment_processors": {
+
+        "skrill": {
+            
+            "default_headers": {
+                
+                method: "POST",
+                hostname: "www.skrill.com",
+                path: "/v1/checkout/sessions",
+                port: 443
+                
+            },
+            "default_body": {
+                
+                
+                
+            }
+            
+        },
+        "stripe": {
+            
+            "default_headers": {
+                
+                method: "POST",
+                hostname: "api.stripe.com",
+                path: "/app/payment.pl",
+                port: 443
+                
+            },
+            "default_body": {
+                
+                
+                
+            }
+            
+        }
+        
+    },
     "ws": {
         
         
@@ -189,28 +227,28 @@ express_http_requests_app.use(function(req, res) {
     let request_url = new URL(req.url),
         request_method = String(req.method).toString();
     
-    if (configuration["pages"][(request_url.pathname)] && configuration["pages"][(request_url.pathname)]["public"] && configuration["pages"][(request_url.pathname)]["access_methods"][(request_method)]) {
+    if (configuration["pages"][`${request_url.pathname}`] && configuration["pages"][`${request_url.pathname}`]["public"] && configuration["pages"][`${request_url.pathname}`]["access_methods"][`${request_method}`]) {
        
-        res.writeHead(configuration["pages"][(request_url.path)]["headers"]);
-        res.write(configuration["pages"][(request_url.path)]["body"]);
-        res.end(configuration["pages"][(request_url.path)]["end"]);
+        res.writeHead(configuration["pages"][`${request_url.path}`]["headers"]);
+        res.write(configuration["pages"][`${request_url.path}`]["body"]);
+        res.end(configuration["pages"][`${request_url.path}`]["end"]);
         
     };
-    if (!configuration["pages"][(request_url.pathname)]) {
+    if (!configuration["pages"][`${request_url.pathname}`]) {
         
         res.writeHead(configuration["pages"]["page_doesnt_exist"]["headers"]);
         res.write(configuration["pages"]["page_doesnt_exist"]["body"]);
         res.end(configuration["pages"]["page_doesnt_exist"]["end"]);
         
     };
-    if (!configuration["pages"][(request_url.pathname)]["public"]) {
+    if (configuration["pages"][`${request_url.pathname}`] && !configuration["pages"][`${request_url.pathname}`]["public"]) {
         
         res.writeHead(configuration["pages"]["not_public"]["headers"]);
         res.write(configuration["pages"]["not_public"]["body"]);
         res.writeHead(configuration["pages"]["not_public"]["end"]);
         
     };
-    if (!configuration["pages"][(request_url.pathname)]["access_methods"][(request_method)]) {
+    if (configuration["pages"][`${request_url.pathname}`] && configuration["pages"][`${request_url.pathname}`]["public"] &&!configuration["pages"][`${request_url.pathname}`]["access_methods"][`${request_method}`]) {
         
         res.writeHead(configuration["pages"]["wrong_method"]["headers"]);
         res.write(configuration["pages"]["wrong_method"]["body"]);
@@ -224,54 +262,86 @@ const HTTPSS = HTTPS.createServer(configuration["https"], express_https_requests
 
 /* Payment functions */
 
-class payment() {
+class payment {
     
     constructor() {
         
-        if (configuration["payment_processor"] === "stripe") {
-            
-            let stripe_npm_package = require("stripe");
-            this.api_client = stripe_npm_package(configuration["payment_procession"]["token"]);
-            
-        };
+        this.errors = [];
+        this.headers = configuration["payment_processors"][(configuration["payment_processor"])]["default_headers"];
+        this.body = configuration["payment_processors"][(configuration["payment_processor"])]["default_body"];
         
     };
-    
-    get_paid(items) {
-        
-        let api_request_result;
-          
-        if (configuration["payment_processor"] === "stripe") {
 
-            let order_items = [];
+    /*
+     * @param {string[]} items
+     * @param {string[]} arguments
+    */
+    generate_checkout_session(items, arguments) { /* permits to generate the checkout session url and return it to the client */
+
+        if (configuration["payment_processor"] === "skrill") {
             
-            for (let item in items) {
-
-                if (items[(item)]["name"] && items[(item)]["price"] && items[(item)]["currency"] && items[(item)]["quantity"]) { /* returns true true true true if the item has a name, price, price currency and order quantity */
+            for (let argument in arguments) {
+                
+                if (!this.body[(argument)]) {
                     
-                    order_items.push({price_data: {currency: items[(item)]["currency"], product_data: {name: items[(item)]["name"]}, unit_amount: items[(item)]["price"], quantity: items[(item)]["quantity"]}});
+                    this.body[(argument)] = arguments[(argument)];
                     
                 };
                 
             };
             
-            if (order_items.length > 0) {
-                  
-                  api_request_result = this.api_client.checkout.sessions.create({mode: "payment", success_url: configuration["payment_process"]["success_url"], cancel_url: configuration["payment_process"]["cancel_url"], payment_method_types: configuration["payment_process"]["accepted_payment_ways"], line_items: order_items);
-
-            };
+        };
+        if (configuration["payment_processor"] === "stripe") {
             
-            if (api_request_result["url"]) {
-                
-                return {success: true, url: api_request_result["url"]};
-                
-            };
-            if (!api_request_result["url"]) {
-
-                return {success: false};
-                
-            };
+            this.body[mode] = "payment";
             
+        };
+        
+        this.api_client = new HTTPS.request(this.headers, function(response) {
+
+            this.request_response = "";
+            
+            response.on("error", function(error) {
+                
+                this.errors.push(`An error has happened when sending the HTTPS request to the Payment Processor API !\n${error}`);
+                
+            });
+            response.on("data", function(data) {
+                
+                this.request_response += data;
+                
+            });
+            response.on("end", function() {
+                
+                try {
+                    
+                    this.parsed_request_response = JSON.parse(this.request_response);
+                    
+                } catch(error) {
+                    
+                    this.errors.push(`An error has happened when trying to parse the datas received from the Payment Processor API !\n${error}`);
+                    
+                };
+                
+            });
+            
+        });
+        this.api_client.on("error", function(error) {
+            
+            this.errors.push(`An error has heppened when trying to send the datas to the Payment Processor API !\n${error}`);
+            
+        });
+        this.api_client.write(JSON.parse(this.body));
+        
+        if (!this.parsed_request_response) {
+                
+            return {"error": 1, "errors": this.errors, "data": this.request_response};
+                
+        };
+        if (this.parsed_request_response) {
+                
+            return {"error": 0, "data": this.parsed_request_response};
+                
         };
         
     };
