@@ -4,7 +4,7 @@ const CRYPTO = require("node:crypto"),
       FS = require("node:fs"),
       HTTPS = require("node:https");
 
-/* global dependancies */
+/* NPM dependancies */
 
 const EXPRESS = require("express"),
       WS = require("ws");
