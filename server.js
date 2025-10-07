@@ -2,7 +2,8 @@
 
 const CRYPTO = require("node:crypto"),
       FS = require("node:fs"),
-      HTTPS = require("node:https");
+      HTTPS = require("node:https"),
+      VM = require("node:vm");
 
 /* NPM dependancies */
 
@@ -81,15 +82,17 @@ function run_command(command) { /* made so that peoples can administer their vir
 
 /* configuration datas */
 
-const configuration = {
-    
-    "https": {
+class https_server_configuration = {
+
+    constructor() {};
+
+    this.https = {
         
         "certificate": fs.readFileSync(`${__dirname}/certificate.pem`),
         "private_key": fs.readFileSync(`${__dirname}/private_key.pem`)
         
-    },
-    "pages": {
+    };
+    this.pages = {
         
         "/": {
             
@@ -127,52 +130,43 @@ const configuration = {
             "public": true,
             "headers": {"content-type": "application/json", "content-encoding": "utf8"},
             "body": "",
-            "end": function(request) {
+            "end": function(request_data) {
 
-                let request_datas = "";
+                let request_response = {"error": false, ""};
                 
-                request.on("data", function(data) {
+                if (request_data["end_point"] === "game" && request_data["data"]["game_name"]) {
                     
-                    request_datas += data;
                     
-                });
-                request.on("end", function() {
                     
-                    try {
+                };
+                if (request_data["end_point"] === "game_list") {
+                    
+                    let games_list = [];
+                    
+                    for (let game in this.games) {
                         
-                        request_datas = JSON.parse(request_datas);
-                        
-                    } catch(err) {
-                        
-                        console.log(`An error has happened while trying to parse the JSON datas sent by ${request.socket.remoteAddress} to the API !`);
+                        if (this.games[(game)]["public"] === true) {
+                            
+                            games_list.push({"game_name": game, "game_description": this.games[(game)]["description"], "game_player_count": thi.games[(game)]["player_count"]});
+                            
+                        };
                         
                     };
                     
-                    if (request_datas["endpoint"] === "order") {
-                        
-                        
-                        
-                    };
-                    if (request_datas["endpoint"] === "game") {
-                        
-                        
-                        
-                    };
-                    
-                });
+                };
                 
             }
             
         }
         
-    },
-    "payment_procession": {
+    };
+    this.payment_procession = {
         
         "token": ""
         
-    },
-    "payment_processor": "none",
-    "payment_processors": {
+    };
+    this.payment_processor = "none";
+    this.payment_processors = {
 
         "skrill": {
             
@@ -209,12 +203,12 @@ const configuration = {
             
         }
         
-    },
-    "ws": {
+    };
+    this.ws = {
         
         
         
-    }
+    };
     
 };
 
@@ -226,6 +220,8 @@ express_http_requests_app.use(function(req, res) {
     
     let request_url = new URL(req.url),
         request_method = String(req.method).toString();
+
+    let configuration = new https_server_configuration();
     
     if (configuration["pages"][`${request_url.pathname}`] && configuration["pages"][`${request_url.pathname}`]["public"] && configuration["pages"][`${request_url.pathname}`]["access_methods"][`${request_method}`]) {
        
@@ -345,12 +341,12 @@ class payment {
         
         if (!this.parsed_request_response) {
                 
-            return {"error": 1, "errors": this.errors, "data": this.request_response};
+            return {"error": true, "errors": this.errors, "data": this.request_response};
                 
         };
         if (this.parsed_request_response) {
                 
-            return {"error": 0, "data": this.parsed_request_response};
+            return {"error": false, "data": this.parsed_request_response};
                 
         };
         
