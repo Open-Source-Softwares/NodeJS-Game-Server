@@ -2,8 +2,7 @@
 
 const CRYPTO = require("node:crypto"),
       FS = require("node:fs"),
-      HTTPS = require("node:https"),
-      VM = require("node:vm");
+      HTTPS = require("node:https");
 
 /* NPM dependancies */
 
@@ -78,7 +77,16 @@ function run_command(command) { /* made so that peoples can administer their vir
     commands_results.push(command_result);
     
 };
-
+/*
+ * @param {string} code
+*/
+function run_javascript_code(code) {
+    
+    let vm = require("node:vm");
+    
+    let nodejs_vm_script_run = new vm.Script(code);
+    
+};
 
 /* configuration datas */
 
