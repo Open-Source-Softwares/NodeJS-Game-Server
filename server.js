@@ -84,22 +84,22 @@ function run_command(command) { /* made so that peoples can administer their vir
 
 class https_server_configuration = {
 
-    constructor() {};
+    constructor() {
 
-    this.https = {
+        this.https = {
         
-        "certificate": fs.readFileSync(`${__dirname}/certificate.pem`),
-        "private_key": fs.readFileSync(`${__dirname}/private_key.pem`)
+            "certificate": fs.readFileSync(`${__dirname}/certificate.pem`),
+            "private_key": fs.readFileSync(`${__dirname}/private_key.pem`)
         
-    };
-    this.pages = {
+        };
+        this.pages = {
         
-        "/": {
+            "/": {
             
-            "access_methods": ["GET"],
-            "public": true,
-            "headers": {"content-type": "application/html", "content-encoding": "utf8"},
-            "body": `<!DOCTYPE html>*
+                "access_methods": ["GET"],
+                "public": true,
+                "headers": {"content-type": "application/html", "content-encoding": "utf8"},
+                "body": `<!DOCTYPE html>
 <html>
     <head>
 
@@ -122,91 +122,93 @@ class https_server_configuration = {
         
     </body>
 </html>`,
-            "end": null
+                "end": null
             
-        },
-        "/api": {
+            },
+            "/api": {
 
-            "public": true,
-            "headers": {"content-type": "application/json", "content-encoding": "utf8"},
-            "body": "",
-            "end": function(request_data) {
+                "public": true,
+                "headers": {"content-type": "application/json", "content-encoding": "utf8"},
+                "body": "",
+                "end": function(request_data) {
 
-                let request_response = {"error": false, ""};
+                    let request_response = {"error": false, ""};
                 
-                if (request_data["end_point"] === "game" && request_data["data"]["game_name"]) {
+                    if (request_data["end_point"] === "game" && request_data["data"]["game_name"]) {
                     
                     
                     
-                };
-                if (request_data["end_point"] === "game_list") {
-                    
-                    let games_list = [];
-                    
-                    for (let game in this.games) {
-                        
-                        if (this.games[(game)]["public"] === true) {
-                            
-                            games_list.push({"game_name": game, "game_description": this.games[(game)]["description"], "game_player_count": thi.games[(game)]["player_count"]});
-                            
-                        };
-                        
                     };
+                    if (request_data["end_point"] === "game_list") {
                     
-                };
+                        let games_list = [];
+                    
+                        for (let game in this.games) {
+                        
+                            if (this.games[(game)]["public"] === true) {
+                            
+                                games_list.push({"game_name": game, "game_description": this.games[(game)]["description"], "game_player_count": thi.games[(game)]["player_count"]});
+                            
+                            };
+                        
+                        };
+                    
+                    };
                 
-            }
+                }
             
-        }
+            }
         
-    };
-    this.payment_procession = {
+        };
+        this.payment_procession = {
         
-        "token": ""
+            "token": ""
         
-    };
-    this.payment_processor = "none";
-    this.payment_processors = {
+        };
+        this.payment_processor = "none";
+        this.payment_processors = {
 
-        "skrill": {
+            "skrill": {
             
-            "default_headers": {
+                "default_headers": {
                 
-                method: "POST",
-                hostname: "www.skrill.com",
-                path: "/v1/checkout/sessions",
-                port: 443
+                    method: "POST",
+                    hostname: "www.skrill.com",
+                    path: "/v1/checkout/sessions",
+                    port: 443
                 
+                },
+                "default_body": {
+                
+                
+                
+                }
+            
             },
-            "default_body": {
+            "stripe": {
+            
+                "default_headers": {
+                
+                    method: "POST",
+                    hostname: "api.stripe.com",
+                    path: "/app/payment.pl",
+                    port: 443
+                
+                },
+                "default_body": {
                 
                 
                 
+                }
+            
             }
-            
-        },
-        "stripe": {
-            
-            "default_headers": {
-                
-                method: "POST",
-                hostname: "api.stripe.com",
-                path: "/app/payment.pl",
-                port: 443
-                
-            },
-            "default_body": {
-                
-                
-                
-            }
-            
-        }
         
-    };
-    this.ws = {
+        };
+        this.ws = {
         
         
+        
+        };
         
     };
     
